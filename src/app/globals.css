@@ -2,25 +2,93 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a; /* Slate 900 */
+  --muted-text: #475569; /* Slate 600 */
+
+  /* Brand Colors */
+  --brand-forest: #19704F;
+  --brand-mint: #2FD696;
+  --brand-blue: #2957FF;
+  --brand-lilac: #AB82FF;
+  --brand-purple: #442682;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@theme {
+  --font-sans: var(--font-jakarta), system-ui, sans-serif;
+  --font-display: var(--font-jakarta), system-ui, sans-serif;
+
+  /* Brand Colors mapping for Tailwind */
+  --color-brand-forest: var(--brand-forest);
+  --color-brand-mint: var(--brand-mint);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-lilac: var(--brand-lilac);
+  --color-brand-purple: var(--brand-purple);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Custom Scrollbar for Boutique Theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+::-webkit-scrollbar-thumb {
+  background: #19704F;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2FD696;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  overflow-x: hidden;
+}
+
+/* Premium Boutique Shadow and Border system */
+.boutique-card {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.02), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.boutique-card-hover:hover {
+  border-color: rgba(25, 112, 79, 0.12);
+  box-shadow: 0 20px 40px -4px rgba(15, 23, 42, 0.05), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+  transform: translateY(-4px);
+}
+
+/* Sutil Glassmorphism Header */
+.glass-header {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.04);
+}
+
+/* Rich Gem Text Colors */
+.text-gem-blue {
+  color: #2957FF;
+}
+
+.text-gem-purple {
+  color: #442682;
+}
+
+.text-gem-mint {
+  color: #2FD696;
+}
+
+.text-gem-forest {
+  color: #19704F;
+}
+
+/* Elegant tactile rich headlines */
+.text-rich-headline {
+  letter-spacing: -0.025em;
+  font-weight: 800;
+  line-height: 1.15;
 }

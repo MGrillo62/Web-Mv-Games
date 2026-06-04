@@ -1,0 +1,339 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Category {
+  id        String   @id
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model Client {
+  id            String          @id
+  name          String
+  document      String          @unique
+  email         String?
+  phone         String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime
+  address       String?
+  contactName   String?
+  geoLat        String?
+  geoLng        String?
+  trackingDays  Int?
+  countryId     String?
+  departmentId  String?
+  districtId    String?
+  provinceId    String?
+  active        Boolean         @default(true)
+  Country       Country?        @relation(fields: [countryId], references: [id])
+  Department    Department?     @relation(fields: [departmentId], references: [id])
+  District      District?       @relation(fields: [districtId], references: [id])
+  Province      Province?       @relation(fields: [provinceId], references: [id])
+  Quote         Quote[]
+  Sale          Sale[]
+  Store         Store[]
+  TrackingVisit TrackingVisit[]
+  User          User[]
+}
+
+model Country {
+  id           String         @id
+  name         String         @unique
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime
+  igvPercent   Float          @default(18.0)
+  Client       Client[]
+  DiscountRule DiscountRule[]
+  Quote        Quote[]
+}
+
+model DashboardMessage {
+  id        String   @id
+  title     String
+  content   String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  imageUrl  String?
+}
+
+model Department {
+  id        String     @id
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime
+  Client    Client[]
+  Province  Province[]
+}
+
+model DiscountRule {
+  id                 String   @id
+  category           String
+  minQuantity        Int
+  maxQuantity        Int?
+  discountPercentage Float
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime
+  countryId          String?
+  Country            Country? @relation(fields: [countryId], references: [id])
+}
+
+model District {
+  id         String   @id
+  name       String
+  provinceId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+  Client     Client[]
+  Province   Province @relation(fields: [provinceId], references: [id])
+}
+
+model Family {
+  id        String    @id
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  Product   Product[]
+}
+
+model Launch {
+  id             String   @id
+  name           String
+  imageUrl       String?
+  review         String?
+  videoUrl       String?
+  estimatedPrice Float
+  dateText       String
+  status         String
+  estimatedTime  String?
+  arrivalDate    String?
+  isRegistered   Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime
+}
+
+model Product {
+  id                  String               @id
+  name                String
+  description         String?
+  stock               Int                  @default(0)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime
+  category            String
+  costPrice           Float
+  salePrice           Float
+  sku                 String               @unique
+  imageUrl            String?
+  familyId            String?
+  isFamily            Boolean              @default(false)
+  uniqueId            String?
+  minStock            Int                  @default(0)
+  launchArrivalDate   String?
+  launchArrivalType   String?              @default("ESTIMADA")
+  launchEstimatedTime String?
+  launchStatus        String?              @default("EDITORIAL")
+  review              String?
+  tipo                String               @default("PRODUCTO")
+  videoUrl            String?
+  Family              Family?              @relation(fields: [familyId], references: [id])
+  QuoteItem           QuoteItem[]
+  SaleItem            SaleItem[]
+  StockAdjustmentLog  StockAdjustmentLog[]
+  TrackingItem        TrackingItem[]
+}
+
+model Province {
+  id           String     @id
+  name         String
+  departmentId String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime
+  Client       Client[]
+  District     District[]
+  Department   Department @relation(fields: [departmentId], references: [id])
+}
+
+model Quote {
+  id                 String         @id
+  total              Float
+  status             QuoteStatus    @default(PENDING)
+  userId             String
+  clientId           String
+  storeId            String
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime
+  includesIgv        Boolean        @default(true)
+  discount           Float          @default(0)
+  subtotal           Float          @default(0)
+  trackingNumber     String?
+  number             Int            @unique @default(autoincrement())
+  countryId          String?
+  invoiceDate        String?
+  invoiceNumber      String?
+  invoicePaymentDate String?
+  invoiceSeries      String?
+  invoiceStatus      String?        @default("PENDIENTE")
+  tipo               String         @default("COTIZACION")
+  Client             Client         @relation(fields: [clientId], references: [id])
+  Country            Country?       @relation(fields: [countryId], references: [id])
+  Store              Store          @relation(fields: [storeId], references: [id])
+  User               User           @relation(fields: [userId], references: [id])
+  QuoteHistory       QuoteHistory[]
+  QuoteItem          QuoteItem[]
+  Sale               Sale[]
+}
+
+model QuoteHistory {
+  id        String      @id
+  quoteId   String
+  status    QuoteStatus
+  userId    String
+  createdAt DateTime    @default(now())
+  Quote     Quote       @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  User      User        @relation(fields: [userId], references: [id])
+}
+
+model QuoteItem {
+  id          String  @id
+  quoteId     String
+  productId   String
+  quantity    Int
+  price       Float
+  discount    Float   @default(0)
+  discountPct Float   @default(0)
+  Product     Product @relation(fields: [productId], references: [id])
+  Quote       Quote   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+}
+
+model Sale {
+  id          String     @id
+  total       Float
+  userId      String
+  clientId    String
+  storeId     String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime
+  includesIgv Boolean    @default(true)
+  correlative String?    @unique
+  quoteId     String?
+  Client      Client     @relation(fields: [clientId], references: [id])
+  Quote       Quote?     @relation(fields: [quoteId], references: [id])
+  Store       Store      @relation(fields: [storeId], references: [id])
+  User        User       @relation(fields: [userId], references: [id])
+  SaleItem    SaleItem[]
+}
+
+model SaleItem {
+  id          String  @id
+  saleId      String
+  productId   String
+  quantity    Int
+  price       Float
+  discount    Float   @default(0)
+  discountPct Float   @default(0)
+  Product     Product @relation(fields: [productId], references: [id])
+  Sale        Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+}
+
+model StockAdjustmentLog {
+  id        String   @id
+  productId String
+  userId    String
+  oldValue  Int
+  newValue  Int
+  createdAt DateTime @default(now())
+  Product   Product  @relation(fields: [productId], references: [id])
+  User      User     @relation(fields: [userId], references: [id])
+}
+
+model Store {
+  id            String          @id
+  name          String
+  address       String
+  clientId      String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime
+  geoLat        String?
+  geoLng        String?
+  Quote         Quote[]
+  Sale          Sale[]
+  Client        Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  TrackingVisit TrackingVisit[]
+  User          User[]
+}
+
+model SystemSetting {
+  id        String   @id
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model TrackingItem {
+  id            String        @id
+  trackingId    String
+  productId     String
+  previousStock Int
+  currentStock  Int
+  ventaCalc     Int
+  Product       Product       @relation(fields: [productId], references: [id])
+  TrackingVisit TrackingVisit @relation(fields: [trackingId], references: [id], onDelete: Cascade)
+}
+
+model TrackingVisit {
+  id           String         @id
+  clientId     String
+  storeId      String
+  userId       String
+  createdAt    DateTime       @default(now())
+  TrackingItem TrackingItem[]
+  Client       Client         @relation(fields: [clientId], references: [id])
+  Store        Store          @relation(fields: [storeId], references: [id])
+  User         User           @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id                 String               @id
+  name               String
+  email              String               @unique
+  password           String
+  role               Role                 @default(VENDEDOR)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime
+  active             Boolean              @default(true)
+  clientId           String?
+  storeId            String?
+  isOnline           Boolean              @default(false)
+  lastConnected      DateTime?
+  Quote              Quote[]
+  QuoteHistory       QuoteHistory[]
+  Sale               Sale[]
+  StockAdjustmentLog StockAdjustmentLog[]
+  TrackingVisit      TrackingVisit[]
+  Client             Client?              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  Store              Store?               @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+enum QuoteStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PREPARING
+  SHIPPED
+  DELIVERED
+}
+
+enum Role {
+  ADMIN
+  VENDEDOR
+  ADMIN_CLIENTE
+  ADMIN_TIENDA
+  SUPER_ADMIN
+}
