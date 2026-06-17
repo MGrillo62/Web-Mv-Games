@@ -9,8 +9,11 @@ import Contact from "@/components/Contact";
 import { prisma } from "@/lib/prisma";
 
 // Incremental Static Regeneration (ISR) - Refreshes the cache in the
-// background every 60 seconds.
-export const revalidate = 60;
+// background every 1 hour. A shorter interval (e.g. 60s) causes Railway
+// to constantly re-render the page and triggers "Failed to find Server Action"
+// errors when a new deploy invalidates the previous bundle's action hashes.
+export const revalidate = 3600;
+
 
 export default async function Home() {
   // Concurrent database queries

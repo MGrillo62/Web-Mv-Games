@@ -5,6 +5,35 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, SlidersHorizontal, AlertCircle, CheckCircle, Package } from "lucide-react";
 import Image from "next/image";
 
+// Sub-component that tracks image load errors per product card.
+// When the upstream image returns 404, onError fires, we set failedImage=true
+// and render the placeholder instead — stopping Railway from retrying the
+// broken Shopify CDN request on every subsequent render.
+function ProductImage({ src, alt }: { src: string; alt: string }) {
+  const [failedImage, setFailedImage] = useState(false);
+
+  if (failedImage) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-50/50">
+        <Package className="h-8 w-8 opacity-40 mb-2" />
+        <span className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">Sin Imagen</span>
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+      className="object-contain p-2 group-hover:scale-102 transition-transform duration-500"
+      loading="lazy"
+      onError={() => setFailedImage(true)}
+    />
+  );
+}
+
 interface ProductType {
   id: string;
   name: string;
@@ -181,14 +210,7 @@ export default function Catalog({ products }: CatalogProps) {
                     <div className="relative aspect-square w-full bg-slate-50 flex items-center justify-center p-4 border-b border-slate-100 overflow-hidden">
                       <div className="w-full h-full border border-slate-200/60 rounded-xl overflow-hidden shadow-inner bg-white relative">
                         {product.imageUrl ? (
-                          <Image
-                            src={product.imageUrl}
-                            alt={product.name}
-                            fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                            className="object-contain p-2 group-hover:scale-102 transition-transform duration-500"
-                            loading="lazy"
-                          />
+                          <ProductImage src={product.imageUrl} alt={product.name} />
                         ) : (
                           <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-50/50">
                             <Package className="h-8 w-8 opacity-40 mb-2" />

@@ -1,8 +1,35 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Calendar, Play, Info } from "lucide-react";
 import Image from "next/image";
+
+// Sub-component that tracks image load errors per launch card.
+// When the upstream image returns 404, onError fires once, we switch to the
+// placeholder — preventing Railway from retrying the broken CDN request.
+function LaunchImage({ src, alt }: { src: string; alt: string }) {
+  const [failedImage, setFailedImage] = useState(false);
+
+  if (failedImage) {
+    return (
+      <div className="w-full h-full flex items-center justify-center text-slate-400">
+        <Info className="h-10 w-10 opacity-30" />
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      className="object-contain p-2 group-hover:scale-102 transition-transform duration-500"
+      onError={() => setFailedImage(true)}
+    />
+  );
+}
 
 interface LaunchType {
   id: string;
@@ -115,13 +142,7 @@ export default function Launches({ data }: LaunchesProps) {
                 <div className="relative aspect-[4/3] w-full bg-slate-50 border-b border-slate-100 flex items-center justify-center p-4">
                   {item.imageUrl ? (
                     <div className="relative w-full h-full border border-slate-200/50 rounded-xl overflow-hidden shadow-inner bg-white">
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="object-contain p-2 group-hover:scale-102 transition-transform duration-500"
-                      />
+                      <LaunchImage src={item.imageUrl} alt={item.name} />
                     </div>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-slate-400">
